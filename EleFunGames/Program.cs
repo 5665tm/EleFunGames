@@ -68,13 +68,13 @@ namespace EleFunGames
 		private static void HandleFilename(string[] args, string[] argsWork)
 		{
 			// проверяем правильность указания файла
-			int positionMCommand = -1;
+			int positionArgM = -1;
 			var fileNameBuilder = new StringBuilder();
 			for (int i = 2; i < argsWork.Length; i++)
 			{
 				if (argsWork[i] == "-M")
 				{
-					positionMCommand = i;
+					positionArgM = i;
 					break;
 				}
 				fileNameBuilder.Append(argsWork[i] + " ");
@@ -87,7 +87,7 @@ namespace EleFunGames
 				Message.ShowError(Message.WRONG_FILENAME_NOT_SPECIFIED, args);
 				return;
 			}
-			if (positionMCommand == -1 || positionMCommand + 2 > argsWork.Length)
+			if (positionArgM == -1 || positionArgM + 1 >= argsWork.Length)
 			{
 				Message.ShowError(Message.WRONG_FILENAME_COMMAND, args);
 				return;
@@ -98,16 +98,17 @@ namespace EleFunGames
 				return;
 			}
 
-			switch (argsWork[positionMCommand + 1])
+			switch (argsWork[positionArgM + 1])
 			{
 				case "FIND":
-					if (argsWork.Length < positionMCommand + 4 || argsWork[positionMCommand + 2] != "-S")
+					const int NUMBER_OF_ARGS_AFTER_M = 3;
+					if (positionArgM + NUMBER_OF_ARGS_AFTER_M >= argsWork.Length || argsWork[positionArgM + 2] != "-S")
 					{
 						Message.ShowError(Message.WRONG_FILENAME_COMMAND, args);
 						return;
 					}
 					var lineBuilder = new StringBuilder();
-					for (int i = positionMCommand + 3; i < args.Length; i++)
+					for (int i = positionArgM + NUMBER_OF_ARGS_AFTER_M; i < args.Length; i++)
 					{
 						lineBuilder.Append(args[i] + " ");
 					}
@@ -128,16 +129,19 @@ namespace EleFunGames
 		private static string FindFilenameOffset(string filename, string inputLine)
 		{
 			StringBuilder result = new StringBuilder();
-			// Вначале определим наличие BOM
+
+			// Вначале определим наличие BOM, который занимает 3 байта
 			BinaryReader binaryReader = new BinaryReader(File.OpenRead(filename));
 			byte[] data = binaryReader.ReadBytes((int) Math.Min(binaryReader.BaseStream.Length, 3));
 			binaryReader.Close();
 			bool bom = (data.Length >= 3 && data[0] == 0xef && data[1] == 0xbb && data[2] == 0xbf);
-			int caretPosition = bom ? 3 : 0;
+			const int BOOM_SIZE = 3;
+			int caretPosition = bom ? BOOM_SIZE : 0;
 			StreamReader sr = new StreamReader(filename);
 
 			// находим все вхождения указанной строки и узнаем их смещение от начала файла
 			int counter = 0;
+			const int LINE_BREAK_SIZE = 2;
 			while (sr.EndOfStream == false)
 			{
 				string s = sr.ReadLine();
@@ -146,7 +150,7 @@ namespace EleFunGames
 					result.Append(caretPosition + " ");
 					counter++;
 				}
-				caretPosition += Encoding.UTF8.GetByteCount(s) + 2;
+				caretPosition += Encoding.UTF8.GetByteCount(s) + LINE_BREAK_SIZE;
 			}
 
 			return (bom ? "Кодировка использует BOM (+3 байта в начале)\n" : null)
