@@ -47,15 +47,15 @@ namespace EleFunGames
 			{
 				// Работа с файлом
 				case "-F":
-					HandleFilename(args, argsWork);
+					ParseFilename(args, argsWork);
 					return;
 				// Вывод справки
 				case "-H":
-					HandeHelp();
+					ParseHelp();
 					return;
 				// Неверный аргумент
 				default:
-					HandleWrong(args);
+					ParseWrong(args);
 					return;
 			}
 		}
@@ -65,7 +65,7 @@ namespace EleFunGames
 		/// </summary>
 		/// <param name="args">Список аргументов</param>
 		/// <param name="argsWork">Cписок аргументов после обработки</param>
-		private static void HandleFilename(string[] args, string[] argsWork)
+		private static void ParseFilename(string[] args, string[] argsWork)
 		{
 			// проверяем правильность указания файла
 			int positionArgM = -1;
@@ -119,6 +119,23 @@ namespace EleFunGames
 					Message.Show(CalculateChecksum(fileName));
 					return;
 			}
+		}
+
+		/// <summary>
+		///     Обработчик для команды -H
+		/// </summary>
+		private static void ParseHelp()
+		{
+			Message.ShowHelp();
+		}
+
+		/// <summary>
+		///     Обработчик для невалидной команды
+		/// </summary>
+		/// <param name="args"></param>
+		private static void ParseWrong(string[] args)
+		{
+			Message.ShowError(Message.WRONG_NOT_COMMAND, args);
 		}
 
 		/// <summary>
@@ -176,23 +193,6 @@ namespace EleFunGames
 			}
 
 			return "CRC-32: 0x" + hash;
-		}
-
-		/// <summary>
-		///     Обработчик для команды -H
-		/// </summary>
-		private static void HandeHelp()
-		{
-			Message.ShowHelp();
-		}
-
-		/// <summary>
-		///     Обработчик для невалидной команды
-		/// </summary>
-		/// <param name="args"></param>
-		private static void HandleWrong(string[] args)
-		{
-			Message.ShowError(Message.WRONG_NOT_COMMAND, args);
 		}
 	}
 }
