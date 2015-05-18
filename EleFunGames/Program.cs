@@ -47,7 +47,7 @@ namespace EleFunGames
 			{
 				// Работа с файлом
 				case "-F":
-					HandeFilename(args, argsWork);
+					HandleFilename(args, argsWork);
 					return;
 				// Вывод справки
 				case "-H":
@@ -65,7 +65,7 @@ namespace EleFunGames
 		/// </summary>
 		/// <param name="args">Список аргументов</param>
 		/// <param name="argsWork">Cписок аргументов после обработки</param>
-		private static void HandeFilename(string[] args, string[] argsWork)
+		private static void HandleFilename(string[] args, string[] argsWork)
 		{
 			// проверяем правильность указания файла
 			int positionMCommand = -1;
