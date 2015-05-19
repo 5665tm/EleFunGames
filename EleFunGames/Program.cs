@@ -174,6 +174,8 @@ namespace EleFunGames
 				}
 			}
 
+			sr.Close();
+
 			return (bom ? "Кодировка использует BOM (+3 байта в начале)\n" : null)
 				+ "Размер файла в байтах: " + caretPosition + "\n"
 				+ "Найдено вхождений строки: " + counter + "\nСмещения: " + result;
