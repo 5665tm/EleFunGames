@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace EleFunGames
@@ -148,12 +149,12 @@ namespace EleFunGames
 			StringBuilder result = new StringBuilder();
 
 			// Вначале определим наличие BOM, который занимает 3 байта
+			const int BOM_SIZE = 3;
 			BinaryReader binaryReader = new BinaryReader(File.OpenRead(filename));
-			byte[] data = binaryReader.ReadBytes((int) Math.Min(binaryReader.BaseStream.Length, 3));
+			byte[] data = binaryReader.ReadBytes((int) Math.Min(binaryReader.BaseStream.Length, BOM_SIZE));
 			binaryReader.Close();
-			bool bom = (data.Length >= 3 && data[0] == 0xef && data[1] == 0xbb && data[2] == 0xbf);
-			const int BOOM_SIZE = 3;
-			int caretPosition = bom ? BOOM_SIZE : 0;
+			bool bom = (data.Length == BOM_SIZE && data[0] == 0xef && data[1] == 0xbb && data[2] == 0xbf);
+			int caretPosition = bom ? BOM_SIZE : 0;
 			StreamReader sr = new StreamReader(filename);
 
 			// находим все вхождения указанной строки и узнаем их смещение от начала файла
@@ -167,7 +168,10 @@ namespace EleFunGames
 					result.Append(caretPosition + " ");
 					counter++;
 				}
-				caretPosition += Encoding.UTF8.GetByteCount(s) + LINE_BREAK_SIZE;
+				if (s != null)
+				{
+					caretPosition += Encoding.UTF8.GetByteCount(s) + LINE_BREAK_SIZE;
+				}
 			}
 
 			return (bom ? "Кодировка использует BOM (+3 байта в начале)\n" : null)
@@ -186,10 +190,8 @@ namespace EleFunGames
 			string hash = String.Empty;
 			using (FileStream fs = File.Open(fileName, FileMode.Open))
 			{
-				foreach (byte b in crc32.ComputeHash(fs))
-				{
-					hash += b.ToString("x2").ToLower();
-				}
+				hash = crc32.ComputeHash(fs)
+					.Aggregate(hash, (current, b) => current + b.ToString("x2").ToLower());
 			}
 
 			return "CRC-32: 0x" + hash;
